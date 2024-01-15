@@ -28,3 +28,27 @@ describe("GET /api/topics", () => {
         })
     })
 })
+
+describe("GET /api", () => {
+    test("Should return status 200 and endpoints.json", () => {
+        return request(app).get("/api").expect(200).then((response) => {
+            const endpoints = response.body.newEndpoints;
+            //console.log(endpoints);
+            for (const obj in endpoints) {
+                const value = endpoints[obj];
+                //console.log(value);
+                //console.log(value.description);
+                expect(typeof obj).toBe("string");
+                if (value.description){
+                    expect(typeof value.description).toBe("string");
+                }
+                if (value.queries){
+                    expect(Array.isArray(value.queries)).toBe(true);
+                }
+                if (value.exampleResponse) {
+                    expect(typeof value.exampleResponse).toBe("object");
+                }
+            }
+        })
+    })
+})

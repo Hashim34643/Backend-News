@@ -7,7 +7,7 @@ const app = express();
 
 app.get("/api/topics", controllers.getAllTopics);
 
-app.get("/api", controllers);
+app.get("/api", controllers.getAllApi);
 //app.listen(8005);
 
 module.exports = app;
