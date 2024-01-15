@@ -21,4 +21,14 @@ function fetchAllApi() {
     return endpointsData;
 }
 
-module.exports = {fetchAllTopics, fetchAllApi};
+function fetchArticlesById(articleId) {
+    const id = articleId;
+    const sqlQuery = `
+    SELECT * FROM articles
+    WHERE articles.article_id = $1`;
+    return db.query(sqlQuery, [id]).then((response) => {
+        return response;
+    })
+} 
+
+module.exports = {fetchAllTopics, fetchAllApi, fetchArticlesById};

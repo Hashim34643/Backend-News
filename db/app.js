@@ -8,6 +8,9 @@ const app = express();
 app.get("/api/topics", controllers.getAllTopics);
 
 app.get("/api", controllers.getAllApi);
+
+app.get("/api/articles/:article_id", controllers.getArticlesById);
+
 //app.listen(8005);
 
 module.exports = app;

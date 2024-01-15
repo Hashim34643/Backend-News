@@ -27,8 +27,18 @@ function getAllApi(req, res) {
             })
         })
     }).catch((error) => {
-        console.error("error reading file getAllApi Func", error);
+        console.error("error in getAllApi", error);
     })
 }
 
-module.exports = {getAllTopics, getAllApi};
+function getArticlesById(req, res) {
+    const articleId = req.params.article_id;
+    models.fetchArticlesById(articleId).then((response) => {
+        const article = response.rows[0];
+        res.status(200).send(({article}));
+    }).catch((error) => {
+        console.error("error in getArticlesById", error);
+    })
+}
+
+module.exports = {getAllTopics, getAllApi, getArticlesById};

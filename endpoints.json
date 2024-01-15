@@ -35,5 +35,19 @@
         }
       ]
     }
+  },
+  "GET /api/articles/:article_id": {
+    "description": "serves an article by article_id",
+    "exampleResponse": {
+      "article": {
+        "title": "title",
+        "topic": "topic",
+        "author": "author",
+        "body": "body",
+        "created_at": "create_at",
+        "votes": 1,
+        "article_img_url": "article_img_url"
+      }
+    }
   }
 }
