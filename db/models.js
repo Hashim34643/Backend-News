@@ -8,7 +8,6 @@ function fetchAllTopics() {
         return response;
     }).catch((error) => {
         console.error("error in models fetchAllTopics Func", error);
-        return Promise.reject({status: 400, error: "Invalid query"});
     })
 }
 
@@ -17,12 +16,14 @@ function fetchAllApi() {
         return JSON.parse(response);
     }).catch((error) => {
         console.error("error fetching endpointsData", error);
-        return Promise.reject({status: 400, error: "Invalid query"});
     })
     return endpointsData;
 }
 
 function fetchArticlesById(articleId) {
+    if (articleId % 1 !== 0 || articleId <= 0) {
+        return Promise.reject({status: 400, error: "Invalid query"});
+    }
     const id = articleId;
     const sqlQuery = `
     SELECT * FROM articles
@@ -31,7 +32,6 @@ function fetchArticlesById(articleId) {
         return response;
     }).catch((error) => {
         console.error("error in fetchArticlesById", error);
-        return Promise.reject({status: 400, error: "Invalid query"});
     })
 } 
 
@@ -52,8 +52,26 @@ function fetchAllArticles() {
         return response;
     }).catch((error) => {
         console.error("error in fetchAllArticles", error);
-        return Promise.reject({status: 400, error: "Invalid query"});
     })
 }
 
-module.exports = {fetchAllTopics, fetchAllApi, fetchArticlesById, fetchAllArticles};
+function fetchCommentsByArticleId(articleId) {
+    if (articleId % 1 !== 0) {
+        return Promise.reject({status: 400, error: "Invalid query"});
+    }
+    const id = articleId;
+    const sqlQuery = `
+    SELECT * FROM comments
+    WHERE article_id = $1
+    ORDER BY created_at DESC`;
+    return db.query(sqlQuery, [id]).then((response) => {
+        if (response.rows.length === 0) {
+            return Promise.reject({status: 404, error: "Invalid query"});
+        }
+        return response;
+    }).catch((error) => {
+        console.error("error in fetchCommentByArticleId", error);
+    })
+}
+
+module.exports = {fetchAllTopics, fetchAllApi, fetchArticlesById, fetchAllArticles, fetchCommentsByArticleId};

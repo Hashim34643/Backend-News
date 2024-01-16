@@ -13,4 +13,6 @@ app.get("/api/articles/:article_id", controllers.getArticlesById);
 
 app.get("/api/articles", controllers.getAllArticles);
 
+app.get("/api/articles/:article_id/comments", controllers.getCommentsByArticleId);
+
 module.exports = app;
