@@ -11,6 +11,6 @@ app.get("/api", controllers.getAllApi);
 
 app.get("/api/articles/:article_id", controllers.getArticlesById);
 
-//app.listen(8005);
+app.get("/api/articles", controllers.getAllArticles);
 
 module.exports = app;

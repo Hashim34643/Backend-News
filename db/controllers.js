@@ -6,7 +6,7 @@ function getAllTopics(req, res) {
         res.status(200).send({response});
     }).catch((error) => {
         console.error("error in controllers getAllTopics Func", error);
-        res.status(400).send(error);
+        res.status(400).send({status: 400, error: "Invalid query"});
     })
 }
 
@@ -28,6 +28,7 @@ function getAllApi(req, res) {
         })
     }).catch((error) => {
         console.error("error in getAllApi", error);
+        res.status(400).send({status: 400, error: "Invalid query"});
     })
 }
 
@@ -37,8 +38,18 @@ function getArticlesById(req, res) {
         const article = response.rows[0];
         res.status(200).send(({article}));
     }).catch((error) => {
-        console.error("error in getArticlesById", error);
+        console.error(error);
+        res.status(400).send({status: 400, error: "Invalid query"});
     })
 }
 
-module.exports = {getAllTopics, getAllApi, getArticlesById};
+function getAllArticles(req, res) {
+    models.fetchAllArticles().then((response) => {
+        res.status(200).send({response});
+    }).catch((error) => {
+        console.error(error);
+        res.status(400).send({status: 400, error: "Invalid query"});
+    })
+}
+
+module.exports = {getAllTopics, getAllApi, getArticlesById, getAllArticles};
