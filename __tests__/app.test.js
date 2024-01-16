@@ -99,6 +99,12 @@ describe("GET /api/articles/:article_id", () => {
             expect(article.article_img_url).toBe("https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700");
         })
     });
+    test("Should respond with 400 and send an error message if invalid id input", () => {
+        return request(app).get("/api/articles/0").expect(400).then((response) => {
+            const text = response.error.text;
+            expect(text).toEqual("{\"status\":400,\"error\":\"Invalid query\"}");
+        })
+    });
     test("Should respond with 400 and send an error response in case of an error", () => {
         jest.spyOn(models, 'fetchArticlesById').mockRejectedValue();
         return request(app).get("/api/articles/1").expect(400).then((response) => {
@@ -138,10 +144,62 @@ describe("GET /api/articles", () => {
             const articles = response.body.response.rows;
             expect(articles).toBeSortedBy("created_at", {descending: true});
         })
-    })
+    });
+    test("Should respond with 400 and send an error message if invalid id input", () => {
+        return request(app).get("/api/articles/0").expect(400).then((response) => {
+            const text = response.error.text;
+            expect(text).toEqual("{\"status\":400,\"error\":\"Invalid query\"}");
+        })
+    });
     test("Should respond with 400 and send an error response in case of an error", () => {
         jest.spyOn(models, 'fetchAllArticles').mockRejectedValue();
         return request(app).get("/api/articles").expect(400).then((response) => {
+            const text = response.error.text;
+            expect(text).toEqual("{\"status\":400,\"error\":\"Invalid query\"}");
+        });
+    });
+})
+
+describe("GET /api/articles/:article_id/comments", () => {
+    test("Should respond with 200 and an array of comments belonging to the specific article id", () => {
+        return request(app).get("/api/articles/1/comments").expect(200).then((response) => {
+            const comments = response.body.response.rows;
+            //console.log(comments);
+            expect(Array.isArray(comments)).toBe(true);
+            comments.forEach((comment) => {
+                expect(typeof comment).toBe("object");
+                expect(comment).toHaveProperty("comment_id");
+                expect(typeof comment.comment_id).toBe("number");
+                expect(comment).toHaveProperty("body");
+                expect(typeof comment.body).toBe("string");                expect(comment).toHaveProperty("body");
+                expect(comment).toHaveProperty("article_id");
+                expect(typeof comment.article_id).toBe("number");
+                expect(comment).toHaveProperty("author");
+                expect(typeof comment.author).toBe("string");
+                expect(comment).toHaveProperty("votes");
+                expect(typeof comment.votes).toBe("number");
+                expect(comment).toHaveProperty("created_at");
+                expect(typeof comment.created_at).toBe("string");
+            });
+            expect(comments[0]).toEqual({
+                comment_id: 5,
+                body: 'I hate streaming noses',
+                article_id: 1,
+                author: 'icellusedkars',
+                votes: 0,
+                created_at: '2020-11-03T21:00:00.000Z'
+              });
+        })
+    });
+    test("Should respond with 400 and send an error message if invalid id input", () => {
+        return request(app).get("/api/articles/0").expect(400).then((response) => {
+            const text = response.error.text;
+            expect(text).toEqual("{\"status\":400,\"error\":\"Invalid query\"}");
+        })
+    });
+    test("Should respond with 400 and send an error response in case of an error", () => {
+        jest.spyOn(models, 'fetchCommentsByArticleId').mockRejectedValue();
+        return request(app).get("/api/articles/1comments").expect(400).then((response) => {
             const text = response.error.text;
             expect(text).toEqual("{\"status\":400,\"error\":\"Invalid query\"}");
         });

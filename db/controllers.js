@@ -52,4 +52,14 @@ function getAllArticles(req, res) {
     })
 }
 
-module.exports = {getAllTopics, getAllApi, getArticlesById, getAllArticles};
+function getCommentsByArticleId(req, res) {
+    const articleId = req.params.article_id;
+    models.fetchCommentsByArticleId(articleId).then((response) => {
+        res.status(200).send({response});
+    }).catch((error) => {
+        console.error("error in getCommentByArticleId", error);
+        res.status(error.status).send({status: 400, error: "Invalid query"});
+    })
+}
+
+module.exports = {getAllTopics, getAllApi, getArticlesById, getAllArticles, getCommentsByArticleId};
