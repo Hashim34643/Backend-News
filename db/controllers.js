@@ -68,4 +68,24 @@ function postCommentsByArticleId(req, res, next) {
     }) 
 } 
 
-module.exports = {getAllTopics, getAllApi, getArticlesById, getAllArticles, getCommentsByArticleId, postCommentsByArticleId};
+function patchArticleByArticleId(req, res, next) {
+    const articleId = req.params.article_id;
+    const {incVotes} = req.body;
+    models.fetchPatchArticleByArticleId(articleId, incVotes).then((response) => {
+        res.status(200).send({response});
+    }).catch((error) => {
+        next(error)
+    })
+}
+
+function deleteCommentsByCommentId(req, res, next) {
+    const commentId = req.params.comment_id;
+    models.fetchDeleteCommentsByCommentId(commentId).then((response) => {
+        res.status(204).send();
+    })
+    .catch((error) => {
+      next(error);
+    });
+}
+
+module.exports = {getAllTopics, getAllApi, getArticlesById, getAllArticles, getCommentsByArticleId, postCommentsByArticleId, patchArticleByArticleId, deleteCommentsByCommentId};
