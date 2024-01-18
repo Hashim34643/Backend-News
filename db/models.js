@@ -74,10 +74,10 @@ function fetchCommentsByArticleId(articleId) {
 
 function fetchPostCommentsByArticleId(articleId, author, body) {
     if (articleId % 1 !== 0 || articleId <= 0) {
-        return Promise.reject({status: 400, error: "Invalid query"});
+        return Promise.reject({ status: 400, error: "Invalid query" });
     }
     if (!author || !body || typeof author !== "string" || typeof body !== "string") {
-        return Promise.reject({status: 400, error: "Invalid request body"})
+        return Promise.reject({ status: 400, error: "Invalid request body" })
     }
 
     const sqlQuery = `
@@ -93,10 +93,46 @@ function fetchPostCommentsByArticleId(articleId, author, body) {
     *;`;
     return db.query(sqlQuery, [articleId, author, body]).then((response) => {
         if (response.rows.length === 0) {
-            return Promise.reject({status: 404, error: "Invalid query"});
+            return Promise.reject({ status: 404, error: "Not found" });
         }
         return response;
     })
 }
 
-module.exports = { fetchAllTopics, fetchAllApi, fetchArticlesById, fetchAllArticles, fetchCommentsByArticleId, fetchPostCommentsByArticleId};
+function fetchPatchArticleByArticleId(articleId, incVotes) {
+    if (articleId % 1 !== 0 || articleId <= 0) {
+        return Promise.reject({ status: 400, error: "Invalid query" });
+    }
+    if (typeof incVotes !== "number" || !incVotes) {
+        return Promise.reject({ status: 400, error: "Invalid request body" });
+    }
+    const sqlQuery = `
+    UPDATE articles
+    SET votes = votes + $2
+    WHERE article_id = $1
+    RETURNING
+    *`;
+    return db.query(sqlQuery, [articleId, incVotes]).then((response) => {
+        if (response.rows.length === 0) {
+            return Promise.reject({ status: 404, error: "Not found" });
+        }
+        return response;
+    });
+}
+
+function fetchDeleteCommentsByCommentId(commentId) {
+    if (commentId <= 0 || commentId % 1 !== 0) {
+        return Promise.reject({ status: 400, error: "Invalid query" })
+    }
+    const sqlQuery = `
+    DELETE FROM comments
+    WHERE comment_id = $1;`;
+    return db.query(sqlQuery, [commentId]).then((response) => {
+        if (response.rowCount === 0) {
+            return Promise.reject({ status: 404, error: "Not found" });
+        }
+        return response
+    })
+}
+
+module.exports = { fetchAllTopics, fetchAllApi, fetchArticlesById, fetchAllArticles, fetchCommentsByArticleId, fetchPostCommentsByArticleId, fetchPatchArticleByArticleId, fetchDeleteCommentsByCommentId };

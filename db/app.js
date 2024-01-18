@@ -21,6 +21,10 @@ app.get("/api/articles/:article_id/comments", controllers.getCommentsByArticleId
 
 app.post("/api/articles/:article_id/comments", controllers.postCommentsByArticleId);
 
+app.patch("/api/articles/:article_id", controllers.patchArticleByArticleId);
+
+app.delete("/api/comments/:comment_id", controllers.deleteCommentsByCommentId)
+
 app.use((err, req, res, next) => {
     if (err.status === 404) {
         res.status(404).json({status: 404, error: "Not Found", message: err.error});
