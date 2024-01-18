@@ -49,5 +49,30 @@
         "article_img_url": "article_img_url"
       }
     }
+  },
+  "GET /api/articles/:article_id/comments": {
+    "description": "serves comments by an articles id",
+    "exampleResponse": {
+      "comment": {
+        "comment_id": 4,
+        "body": "I carry a log — yes. Is it funny to you? It is not to me.",
+        "article_id": 1,
+        "author": "icellusedkars",
+        "votes": -100,
+        "created_at": 1705532303623
+      }
+    }
+  },
+  "POST /api/articles/:article_id/comments": {
+    "description": "posts a comment to an article by its article_id",
+    "exampleResponse": {
+      "comment": {
+        "body": "gsgfgf",
+        "article_id": 1,
+        "author": "njdgf",
+        "votes": 6,
+        "created_at": 1705532303623
+      }
+    }
   }
 }

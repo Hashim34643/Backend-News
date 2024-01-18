@@ -5,35 +5,35 @@ function fetchAllTopics() {
     const sqlQuery = `
     SELECT * FROM topics;`;
     return db.query(sqlQuery).then((response) => {
-        return response;
-    }).catch((error) => {
-        console.error("error in models fetchAllTopics Func", error);
+        if (response) {
+            return response
+        }
+        return Promise.reject({ status: 500, error: "Internal Server Error" });
     })
 }
 
 function fetchAllApi() {
     const endpointsData = fs.readFile("/home/hashim/northcoders/backend/be-nc-news/endpoints.json", "utf-8").then((response) => {
         return JSON.parse(response);
-    }).catch((error) => {
-        console.error("error fetching endpointsData", error);
     })
     return endpointsData;
 }
 
 function fetchArticlesById(articleId) {
     if (articleId % 1 !== 0 || articleId <= 0) {
-        return Promise.reject({status: 400, error: "Invalid query"});
+        return Promise.reject({ status: 400, error: "Invalid query" });
     }
     const id = articleId;
     const sqlQuery = `
     SELECT * FROM articles
     WHERE articles.article_id = $1`;
     return db.query(sqlQuery, [id]).then((response) => {
+        if (response.rows.length === 0) {
+            return Promise.reject({ status: 404, error: "Not found" });
+        }
         return response;
-    }).catch((error) => {
-        console.error("error in fetchArticlesById", error);
     })
-} 
+}
 
 function fetchAllArticles() {
     const sqlQuery = `
@@ -51,13 +51,13 @@ function fetchAllArticles() {
     return db.query(sqlQuery).then((response) => {
         return response;
     }).catch((error) => {
-        console.error("error in fetchAllArticles", error);
+        return Promise.reject({ status: 500, error: "Internal Server Error" });
     })
 }
 
 function fetchCommentsByArticleId(articleId) {
-    if (articleId % 1 !== 0) {
-        return Promise.reject({status: 400, error: "Invalid query"});
+    if (articleId % 1 !== 0 || articleId <= 0) {
+        return Promise.reject({ status: 400, error: "Invalid query" });
     }
     const id = articleId;
     const sqlQuery = `
@@ -66,12 +66,37 @@ function fetchCommentsByArticleId(articleId) {
     ORDER BY created_at DESC`;
     return db.query(sqlQuery, [id]).then((response) => {
         if (response.rows.length === 0) {
-            return Promise.reject({status: 404, error: "Invalid query"});
+            return Promise.reject({ status: 404, error: "Not found" });
         }
         return response;
-    }).catch((error) => {
-        console.error("error in fetchCommentByArticleId", error);
     })
 }
 
-module.exports = {fetchAllTopics, fetchAllApi, fetchArticlesById, fetchAllArticles, fetchCommentsByArticleId};
+function fetchPostCommentsByArticleId(articleId, author, body) {
+    if (articleId % 1 !== 0 || articleId <= 0) {
+        return Promise.reject({status: 400, error: "Invalid query"});
+    }
+    if (!author || !body || typeof author !== "string" || typeof body !== "string") {
+        return Promise.reject({status: 400, error: "Invalid request body"})
+    }
+
+    const sqlQuery = `
+    INSERT INTO comments (
+        article_id,
+        author,
+        body,
+        created_at
+    )
+    VALUES
+    ($1, $2, $3, CURRENT_TIMESTAMP)
+    RETURNING
+    *;`;
+    return db.query(sqlQuery, [articleId, author, body]).then((response) => {
+        if (response.rows.length === 0) {
+            return Promise.reject({status: 404, error: "Invalid query"});
+        }
+        return response;
+    })
+}
+
+module.exports = { fetchAllTopics, fetchAllApi, fetchArticlesById, fetchAllArticles, fetchCommentsByArticleId, fetchPostCommentsByArticleId};

@@ -1,12 +1,11 @@
 const models = require("/home/hashim/northcoders/backend/be-nc-news/db/models.js");
 const fs = require("fs/promises");
 
-function getAllTopics(req, res) {
+function getAllTopics(req, res, next) {
     models.fetchAllTopics().then((response) => {
         res.status(200).send({response});
     }).catch((error) => {
-        console.error("error in controllers getAllTopics Func", error);
-        res.status(400).send({status: 400, error: "Invalid query"});
+        next(error);
     })
 }
 
@@ -14,7 +13,7 @@ function updateEndpointsDynamically(data) {
     return fs.writeFile("/home/hashim/northcoders/backend/be-nc-news/endpoints.json", JSON.stringify(data, null, 2), "utf-8");
 }
 
-function getAllApi(req, res) {
+function getAllApi(req, res, next) {
     fs.readFile("/home/hashim/northcoders/backend/be-nc-news/endpoints.json", "utf-8").then((response) => {
         const endpoints = JSON.parse(response);
         return models.fetchAllApi().then((response) => {
@@ -27,39 +26,46 @@ function getAllApi(req, res) {
             })
         })
     }).catch((error) => {
-        console.error("error in getAllApi", error);
-        res.status(400).send({status: 400, error: "Invalid query"});
+        next(error);
     })
 }
 
-function getArticlesById(req, res) {
+function getArticlesById(req, res, next) {
     const articleId = req.params.article_id;
     models.fetchArticlesById(articleId).then((response) => {
         const article = response.rows[0];
         res.status(200).send(({article}));
     }).catch((error) => {
-        console.error(error);
-        res.status(400).send({status: 400, error: "Invalid query"});
+        next(error);
     })
 }
 
-function getAllArticles(req, res) {
+function getAllArticles(req, res, next) {
     models.fetchAllArticles().then((response) => {
         res.status(200).send({response});
     }).catch((error) => {
-        console.error(error);
-        res.status(400).send({status: 400, error: "Invalid query"});
+        next(error);
     })
 }
 
-function getCommentsByArticleId(req, res) {
+function getCommentsByArticleId(req, res, next) {
     const articleId = req.params.article_id;
     models.fetchCommentsByArticleId(articleId).then((response) => {
         res.status(200).send({response});
     }).catch((error) => {
-        console.error("error in getCommentByArticleId", error);
-        res.status(error.status).send({status: 400, error: "Invalid query"});
+        next(error);
     })
 }
 
-module.exports = {getAllTopics, getAllApi, getArticlesById, getAllArticles, getCommentsByArticleId};
+function postCommentsByArticleId(req, res, next) {
+    const articleId = req.params.article_id;
+    const {author, body} = req.body;
+
+    models.fetchPostCommentsByArticleId(articleId, author, body).then((response) => {
+        res.status(201).send({response});
+    }).catch((error) => {
+        next(error);
+    }) 
+} 
+
+module.exports = {getAllTopics, getAllApi, getArticlesById, getAllArticles, getCommentsByArticleId, postCommentsByArticleId};
