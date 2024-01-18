@@ -88,4 +88,12 @@ function deleteCommentsByCommentId(req, res, next) {
     });
 }
 
-module.exports = {getAllTopics, getAllApi, getArticlesById, getAllArticles, getCommentsByArticleId, postCommentsByArticleId, patchArticleByArticleId, deleteCommentsByCommentId};
+function getAllUsers(req, res, next) {
+    models.fetchAllUsers().then((response) => {
+        res.status(200).send({response});
+    }).catch((error) => {
+        next(error);
+    })
+} 
+
+module.exports = {getAllTopics, getAllApi, getArticlesById, getAllArticles, getCommentsByArticleId, postCommentsByArticleId, patchArticleByArticleId, deleteCommentsByCommentId, getAllUsers};
