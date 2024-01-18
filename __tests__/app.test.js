@@ -385,3 +385,29 @@ describe("DELETE /api/comments/:comment_id", () => {
         });
     });
 })
+
+describe("GET /api/users", () => {
+    test("Should respond with 200 and send an array of all users data", () => {
+        return request(app).get("/api/users").expect(200).then((response) => {
+            const users = response.body.response.rows;
+            console.log(users);
+            expect(Array.isArray(users)).toBe(true);
+            users.forEach((user) => {
+                expect(typeof user).toBe("object");
+                expect(user).toHaveProperty("username");
+                expect(typeof user.username).toBe("string");
+                expect(user).toHaveProperty("name");
+                expect(typeof user.name).toBe("string");
+                expect(user).toHaveProperty("avatar_url");
+                expect(typeof user.avatar_url).toBe("string");
+            })
+        })
+    });
+    test("Should respond with 500 and an error message incase of error", () => {
+        jest.spyOn(models, "fetchAllUsers").mockRejectedValue(new Error("Database query error"));
+        return request(app).get("/api/users").expect(500).then((response) => {
+            const text = response.error.text;
+            expect(text).toEqual("{\"status\":500,\"error\":\"Internal Server Error\"}")
+        })
+    })
+})

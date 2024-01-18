@@ -50,8 +50,6 @@ function fetchAllArticles() {
     ORDER BY articles.created_at DESC`;
     return db.query(sqlQuery).then((response) => {
         return response;
-    }).catch((error) => {
-        return Promise.reject({ status: 500, error: "Internal Server Error" });
     })
 }
 
@@ -135,4 +133,12 @@ function fetchDeleteCommentsByCommentId(commentId) {
     })
 }
 
-module.exports = { fetchAllTopics, fetchAllApi, fetchArticlesById, fetchAllArticles, fetchCommentsByArticleId, fetchPostCommentsByArticleId, fetchPatchArticleByArticleId, fetchDeleteCommentsByCommentId };
+function fetchAllUsers() {
+    const sqlQuery = `
+    SELECT * FROM users;`;
+    return db.query(sqlQuery).then((response) => {
+        return response;
+    });
+}
+
+module.exports = { fetchAllTopics, fetchAllApi, fetchArticlesById, fetchAllArticles, fetchCommentsByArticleId, fetchPostCommentsByArticleId, fetchPatchArticleByArticleId, fetchDeleteCommentsByCommentId, fetchAllUsers};
