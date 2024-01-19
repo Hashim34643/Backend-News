@@ -1,4 +1,4 @@
-const models = require("/home/hashim/northcoders/backend/be-nc-news/db/models.js");
+const models = require("../model/models");
 const fs = require("fs/promises");
 
 function getAllTopics(req, res, next) {
@@ -60,9 +60,9 @@ function getCommentsByArticleId(req, res, next) {
 
 function postCommentsByArticleId(req, res, next) {
     const articleId = req.params.article_id;
-    const {author, body} = req.body;
+    const {username, body} = req.body;
 
-    models.fetchPostCommentsByArticleId(articleId, author, body).then((response) => {
+    models.fetchPostCommentsByArticleId(articleId, username, body).then((response) => {
         res.status(201).send({response});
     }).catch((error) => {
         next(error);
