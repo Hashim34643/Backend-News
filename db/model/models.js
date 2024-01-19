@@ -1,4 +1,4 @@
-const db = require("/home/hashim/northcoders/backend/be-nc-news/db/connection.js");
+const db = require("../connection");
 const fs = require("fs/promises");
 
 function fetchAllTopics() {
@@ -73,7 +73,7 @@ function fetchAllArticles(topicQuery) {
 
     return db.query(sqlQuery, values).then((response) => {
         if (response.rows.length === 0 && topicQuery) {
-            return Promise.reject({ status: 400, error: "Invalid query" });
+            return Promise.reject({ status: 404, error: "Not found" });
         };
         return response;
     });
@@ -97,26 +97,26 @@ function fetchCommentsByArticleId(articleId) {
     })
 }
 
-function fetchPostCommentsByArticleId(articleId, author, body) {
+function fetchPostCommentsByArticleId(articleId, username, body) {
     if (articleId % 1 !== 0 || articleId <= 0) {
         return Promise.reject({ status: 400, error: "Invalid query" });
     }
-    if (!author || !body || typeof author !== "string" || typeof body !== "string") {
+    if (!username || !body || typeof username !== "string" || typeof body !== "string") {
         return Promise.reject({ status: 400, error: "Invalid request body" })
     }
-
     const sqlQuery = `
     INSERT INTO comments (
         article_id,
         author,
         body,
+        votes,
         created_at
     )
     VALUES
-    ($1, $2, $3, CURRENT_TIMESTAMP)
+    ($1, $2, $3, 0, CURRENT_TIMESTAMP)
     RETURNING
-    *;`;
-    return db.query(sqlQuery, [articleId, author, body]).then((response) => {
+    *`;
+    return db.query(sqlQuery, [articleId, username, body]).then((response) => {
         if (response.rows.length === 0) {
             return Promise.reject({ status: 404, error: "Not found" });
         }

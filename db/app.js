@@ -1,6 +1,6 @@
 const express = require("express");
-const db = require("/home/hashim/northcoders/backend/be-nc-news/db/connection.js");
-const controllers = require("/home/hashim/northcoders/backend/be-nc-news/db/controllers.js");
+const db = require("./connection");
+const controllers = require("./controller/controllers");
 
 const app = express();
 app.use(express.json());
