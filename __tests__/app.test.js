@@ -416,7 +416,7 @@ describe("DELETE /api/comments/:comment_id", () => {
 describe("GET /api/users", () => {
     test("Should respond with 200 and send an array of all users data", () => {
         return request(app).get("/api/users").expect(200).then((response) => {
-            const users = response.body.response.rows;
+            const users = response.body;
             expect(Array.isArray(users)).toBe(true);
             users.forEach((user) => {
                 expect(typeof user).toBe("object");

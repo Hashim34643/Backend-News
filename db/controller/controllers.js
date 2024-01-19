@@ -91,7 +91,7 @@ function deleteCommentsByCommentId(req, res, next) {
 
 function getAllUsers(req, res, next) {
     models.fetchAllUsers().then((response) => {
-        res.status(200).send({response});
+        res.status(200).send(response.rows);
     }).catch((error) => {
         next(error);
     })
