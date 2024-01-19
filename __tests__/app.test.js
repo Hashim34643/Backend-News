@@ -94,6 +94,9 @@ describe("GET /api/articles/:article_id", () => {
             expect(article).toHaveProperty("article_img_url");
             expect(typeof article.article_img_url).toBe("string");
             expect(article.article_img_url).toBe("https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700");
+            expect(article).toHaveProperty("comment_count");
+            expect(typeof article.comment_count).toBe("string");
+            expect(article.comment_count).toBe("11");
         })
     });
     test("Should respond with 400 and send an error message if invalid id input", () => {
@@ -139,6 +142,8 @@ describe("GET /api/articles", () => {
                     expect(typeof article.votes).toBe("number");
                     expect(article).toHaveProperty("article_img_url");
                     expect(typeof article.article_img_url).toBe("string");
+                    expect(article).toHaveProperty("comment_count");
+                    expect(typeof article.comment_count).toBe("string");
                 })
             }
         })
