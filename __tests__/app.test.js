@@ -390,7 +390,6 @@ describe("GET /api/users", () => {
     test("Should respond with 200 and send an array of all users data", () => {
         return request(app).get("/api/users").expect(200).then((response) => {
             const users = response.body.response.rows;
-            console.log(users);
             expect(Array.isArray(users)).toBe(true);
             users.forEach((user) => {
                 expect(typeof user).toBe("object");
@@ -410,4 +409,30 @@ describe("GET /api/users", () => {
             expect(text).toEqual("{\"status\":500,\"error\":\"Internal Server Error\"}")
         })
     })
+})
+
+describe("GET /api/articles?topic=", () => {
+    test("Should return 200 and an array of articles with the same topic in the query", () => {
+        return request(app).get("/api/articles?topic=mitch").expect(200).then((response) => {
+            const articles = response.body.response.rows;
+            expect(Array.isArray(articles)).toBe(true);
+            articles.forEach((article) => {
+                expect(typeof article).toBe("object")
+                expect(article.topic).toBe("mitch");
+            })
+        })
+    });
+    test("Should return 400 and an error message if passed invalid topic query", () => {
+        return request(app).get("/api/articles?topic=nonsense").expect(400).then((response) => {
+            const text = response.error.text;
+            expect(text).toBe("{\"status\":400,\"error\":\"Bad Request\",\"message\":\"Invalid query\"}");
+        })
+    });
+    test("Should respond with 500 and send an error message in case of an error", () => {
+        jest.spyOn(models, 'fetchAllArticles').mockRejectedValue(new Error("Database query error"));
+        return request(app).get("/api/articles?topic=mitch").expect(500).then((response) => {
+            const text = response.error.text;
+            expect(text).toEqual("{\"status\":500,\"error\":\"Internal Server Error\"}");
+        });
+    });
 })

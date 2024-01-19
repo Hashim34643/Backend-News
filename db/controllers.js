@@ -41,7 +41,8 @@ function getArticlesById(req, res, next) {
 }
 
 function getAllArticles(req, res, next) {
-    models.fetchAllArticles().then((response) => {
+    const topicQuery = req.query.topic;
+    models.fetchAllArticles(topicQuery).then((response) => {
         res.status(200).send({response});
     }).catch((error) => {
         next(error);

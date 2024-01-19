@@ -35,22 +35,33 @@ function fetchArticlesById(articleId) {
     })
 }
 
-function fetchAllArticles() {
+function fetchAllArticles(topicQuery) {
     const sqlQuery = `
     SELECT
-    article_id,
-    title,
-    topic,
-    author,
-    created_at,
-    votes,
-    article_img_url
+    articles.article_id,
+    articles.title,
+    articles.topic,
+    articles.author,
+    articles.created_at,
+    articles.votes,
+    articles.article_img_url
     FROM
     articles
-    ORDER BY articles.created_at DESC`;
-    return db.query(sqlQuery).then((response) => {
-        return response;
-    })
+    ${topicQuery ? 'WHERE topic = $1' : ''}
+    ORDER BY created_At DESC;`;
+
+const values = [];
+if (topicQuery) {
+    values.push(topicQuery);
+}
+
+return db.query(sqlQuery, values).then((response) => {
+    if (response.rows.length === 0 && topicQuery) {
+        return Promise.reject({status: 400, error: "Invalid query"});
+    };
+    return response;
+});
+
 }
 
 function fetchCommentsByArticleId(articleId) {
