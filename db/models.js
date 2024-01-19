@@ -23,16 +23,29 @@ function fetchArticlesById(articleId) {
     if (articleId % 1 !== 0 || articleId <= 0) {
         return Promise.reject({ status: 400, error: "Invalid query" });
     }
-    const id = articleId;
     const sqlQuery = `
-    SELECT * FROM articles
-    WHERE articles.article_id = $1`;
-    return db.query(sqlQuery, [id]).then((response) => {
+    SELECT
+    articles.article_id,
+    articles.title,
+    articles.topic,
+    articles.author,
+    articles.body,
+    articles.created_at,
+    articles.votes,
+    articles.article_img_url,
+    COUNT(comments.comment_id) AS comment_count
+    FROM
+    articles
+    LEFT JOIN comments ON articles.article_id = comments.article_id
+    WHERE articles.article_id = $1
+    GROUP BY articles.article_id
+    ORDER BY created_at DESC`;
+    return db.query(sqlQuery, [articleId]).then((response) => {
         if (response.rows.length === 0) {
             return Promise.reject({ status: 404, error: "Not found" });
         }
         return response;
-    })
+    });
 }
 
 function fetchAllArticles(topicQuery) {
@@ -44,23 +57,26 @@ function fetchAllArticles(topicQuery) {
     articles.author,
     articles.created_at,
     articles.votes,
-    articles.article_img_url
+    articles.article_img_url,
+    COUNT(comments.comment_id) AS comment_count
     FROM
     articles
-    ${topicQuery ? 'WHERE topic = $1' : ''}
-    ORDER BY created_At DESC;`;
+    LEFT JOIN comments ON articles.article_id = comments.article_id
+    ${topicQuery ? 'WHERE articles.topic = $1' : ''}
+    GROUP BY articles.article_id
+    ORDER BY created_at DESC;`;
 
-const values = [];
-if (topicQuery) {
-    values.push(topicQuery);
-}
+    const values = [];
+    if (topicQuery) {
+        values.push(topicQuery);
+    }
 
-return db.query(sqlQuery, values).then((response) => {
-    if (response.rows.length === 0 && topicQuery) {
-        return Promise.reject({status: 400, error: "Invalid query"});
-    };
-    return response;
-});
+    return db.query(sqlQuery, values).then((response) => {
+        if (response.rows.length === 0 && topicQuery) {
+            return Promise.reject({ status: 400, error: "Invalid query" });
+        };
+        return response;
+    });
 
 }
 
@@ -152,4 +168,4 @@ function fetchAllUsers() {
     });
 }
 
-module.exports = { fetchAllTopics, fetchAllApi, fetchArticlesById, fetchAllArticles, fetchCommentsByArticleId, fetchPostCommentsByArticleId, fetchPatchArticleByArticleId, fetchDeleteCommentsByCommentId, fetchAllUsers};
+module.exports = { fetchAllTopics, fetchAllApi, fetchArticlesById, fetchAllArticles, fetchCommentsByArticleId, fetchPostCommentsByArticleId, fetchPatchArticleByArticleId, fetchDeleteCommentsByCommentId, fetchAllUsers };
