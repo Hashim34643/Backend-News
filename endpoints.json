@@ -74,5 +74,33 @@
         "created_at": 1705532303623
       }
     }
+  },
+  "PATCH /api/articles/:article_id": {
+    "description": "patches a comments votes",
+    "exampleResponse": {
+      "comment": {
+        "article_id": 4,
+        "title": "lfknfd",
+        "topic": "fdbbd",
+        "author": "fdfdfd",
+        "body": "bxxngn",
+        "votes": 4,
+        "article_img_url": "https://fsgfsgsgsg"
+      }
+    }
+  },
+  "DELETE /api/comments/:comment_id": {
+    "description": "deletes a comment",
+    "exampleResponse": {}
+  },
+  "GET /api/users": {
+    "description": "serves an array of all users",
+    "exampleResponse": {
+      "users": {
+        "username": "fddfhdf",
+        "name": "fgdfdf",
+        "avatar_url": "https://dddfdfh"
+      }
+    }
   }
 }
