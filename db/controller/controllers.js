@@ -111,4 +111,15 @@ function getUserByUsername(req, res, next) {
     })
 }
 
-module.exports = {getAllTopics, getAllApi, getArticlesById, getAllArticles, getCommentsByArticleId, postCommentsByArticleId, patchArticleByArticleId, deleteCommentsByCommentId, getAllUsers, getUserByUsername};
+function patchCommentByCommentId(req, res, next) {
+    const commentId = req.params.comment_id;
+    const {incVotes} = req.body;
+    models.fetchPatchCommentByCommentId(commentId, incVotes).then((response) => {
+        const comment = response.rows[0];
+        res.status(200).send({comment});
+    }).catch((error) => {
+        next(error);
+    })
+}
+
+module.exports = {getAllTopics, getAllApi, getArticlesById, getAllArticles, getCommentsByArticleId, postCommentsByArticleId, patchArticleByArticleId, deleteCommentsByCommentId, getAllUsers, getUserByUsername, patchCommentByCommentId};

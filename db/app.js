@@ -27,6 +27,8 @@ app.post("/api/articles/:article_id/comments", controllers.postCommentsByArticle
 
 app.patch("/api/articles/:article_id", controllers.patchArticleByArticleId);
 
+app.patch("/api/comments/:comment_id", controllers.patchCommentByCommentId);
+
 app.delete("/api/comments/:comment_id", controllers.deleteCommentsByCommentId)
 
 app.use((err, req, res, next) => {
