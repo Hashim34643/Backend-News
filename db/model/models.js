@@ -48,7 +48,18 @@ function fetchArticlesById(articleId) {
     });
 }
 
-function fetchAllArticles(topicQuery) {
+function fetchAllArticles(topicQuery, sortQuery, orderQuery) {
+    const safeSortQueryList = ["article-id", "title", "topic", "author", "created_at", "votes", "comment_count"];
+    if (!safeSortQueryList.includes(sortQuery)) {
+        return Promise.reject({status: 404, error: "Not found"});
+    }
+    const safeSortQuery = `"${sortQuery}"`;
+    const safeOrderQueryList = ["DESC", "ASC"];
+    const orderQueryUC = orderQuery.toUpperCase();
+    if (!safeOrderQueryList.includes(orderQueryUC)) {
+        return Promise.reject({status: 404, error: "Not found"});
+    }
+    const safeOrderQuery = `${orderQueryUC}`;
     const sqlQuery = `
     SELECT
     articles.article_id,
@@ -64,20 +75,19 @@ function fetchAllArticles(topicQuery) {
     LEFT JOIN comments ON articles.article_id = comments.article_id
     ${topicQuery ? 'WHERE articles.topic = $1' : ''}
     GROUP BY articles.article_id
-    ORDER BY created_at DESC;`;
+    ORDER BY ${safeSortQuery} ${safeOrderQuery};
+    `;
 
     const values = [];
     if (topicQuery) {
         values.push(topicQuery);
     }
-
     return db.query(sqlQuery, values).then((response) => {
         if (response.rows.length === 0 && topicQuery) {
             return Promise.reject({ status: 404, error: "Not found" });
         };
         return response;
     });
-
 }
 
 function fetchCommentsByArticleId(articleId) {

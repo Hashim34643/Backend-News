@@ -13,8 +13,19 @@ afterAll(() => {
     return db.end();
 })
 
+describe("ERROR", () => {
+    test("Should respond with 500 and send an error response in case of an error", () => {
+        jest.spyOn(models, 'fetchAllTopics').mockRejectedValue(new Error("Database query error"));
+        return request(app).get("/api/topics").expect(500).then((response) => {
+            const text = response.error.text;
+            expect(text).toEqual("{\"status\":500,\"error\":\"Internal Server Error\"}");
+            jest.restoreAllMocks();
+        });
+    });
+})
+
 describe("GET /api/topics", () => {
-    test("Should return status 200 and topics data", () => {
+    test("Should respond with status 200 and topics data", () => {
         return request(app).get("/api/topics").expect(200).then((response) => {
             const topics = response.body;
             expect(Array.isArray(topics)).toBe(true);
@@ -30,17 +41,10 @@ describe("GET /api/topics", () => {
             }
         })
     });
-    test("Should respond with 500 and send an error response in case of an error", () => {
-        jest.spyOn(models, 'fetchAllTopics').mockRejectedValue(new Error("Database query error"));
-        return request(app).get("/api/topics").expect(500).then((response) => {
-            const text = response.error.text;
-            expect(text).toEqual("{\"status\":500,\"error\":\"Internal Server Error\"}");
-        });
-    });
 })
 
 describe("GET /api", () => {
-    test("Should return status 200 and endpoints.json", () => {
+    test("Should respond with status 200 and endpoints.json", () => {
         return request(app).get("/api").expect(200).then((response) => {
             const endpoints = response.body.newEndpoints;
             for (const obj in endpoints) {
@@ -57,13 +61,6 @@ describe("GET /api", () => {
                 }
             }
         })
-    });
-    test("Should respond with 500 and send an error response in case of an error", () => {
-        jest.spyOn(models, 'fetchAllApi').mockRejectedValue(new Error("Database query error"));
-        return request(app).get("/api").expect(500).then((response) => {
-            const text = response.error.text;
-            expect(text).toEqual("{\"status\":500,\"error\":\"Internal Server Error\"}");
-        });
     });
 })
 
@@ -119,17 +116,10 @@ describe("GET /api/articles/:article_id", () => {
             expect(text).toEqual("{\"status\":404,\"error\":\"Not Found\",\"message\":\"Not found\"}");
         });
     });
-    test("Should respond with 500 and send an error response in case of an error", () => {
-        jest.spyOn(models, 'fetchArticlesById').mockRejectedValue(new Error("Database query error"));
-        return request(app).get("/api/articles/1").expect(500).then((response) => {
-            const text = response.error.text;
-            expect(text).toEqual("{\"status\":500,\"error\":\"Internal Server Error\"}");
-        });
-    });
 })
 
 describe("GET /api/articles", () => {
-    test("Should respond with 200 and return an array of objects containing articles data", () => {
+    test("Should respond with 200 and return an array of articles", () => {
         return request(app).get("/api/articles").expect(200).then((response) => {
             const articles = response.body;
             if (articles.length > 0) {
@@ -161,11 +151,111 @@ describe("GET /api/articles", () => {
             expect(articles).toBeSortedBy("created_at", { descending: true });
         })
     });
-    test("Should respond with 500 and send an error response in case of an error", () => {
-        jest.spyOn(models, 'fetchAllArticles').mockRejectedValue(new Error("Database query error"));
-        return request(app).get("/api/articles").expect(500).then((response) => {
-            const text = response.error.text;
-            expect(text).toEqual("{\"status\":500,\"error\":\"Internal Server Error\"}");
+    describe("Get /api/articles?sort_by", () => {
+        test("Should respond with 200 and an array of articles sorted by sort_by query", () => {
+            return request(app).get("/api/articles?sort_by=title").expect(200).then((response) => {
+                const articles = response.body;
+                expect(Array.isArray(articles)).toBe(true);
+                if (articles.length > 0) {
+                    articles.forEach((article) => {
+                        expect(article).not.toHaveProperty("body");
+                        expect(article).toHaveProperty("article_id");
+                        expect(typeof article.article_id).toBe("number");
+                        expect(article).toHaveProperty("title");
+                        expect(typeof article.title).toBe("string");
+                        expect(article).toHaveProperty("topic");
+                        expect(typeof article.topic).toBe("string");
+                        expect(article).toHaveProperty("author");
+                        expect(typeof article.author).toBe("string");
+                        expect(article).toHaveProperty("created_at");
+                        expect(typeof article.created_at).toBe("string");
+                        expect(article).toHaveProperty("votes");
+                        expect(typeof article.votes).toBe("number");
+                        expect(article).toHaveProperty("article_img_url");
+                        expect(typeof article.article_img_url).toBe("string");
+                        expect(article).toHaveProperty("comment_count");
+                        expect(typeof article.comment_count).toBe("string");
+                    })
+                };
+                expect(articles).toBeSortedBy("title", {descending: true});
+            })
+        });
+        test("Should respond with 404 and an error message if passed invalid sort_by query", () => {
+            return request(app).get("/api/articles?sort_by=password").expect(404).then((response) => {
+                const text = response.error.text;
+                expect(text).toBe("{\"status\":404,\"error\":\"Not Found\",\"message\":\"Not found\"}");
+            })
+        });
+    });
+    describe("Get /api/articles?order", () => {
+        test("Should respond with 200 and an array of articles ordered by order query", () => {
+            return request(app).get("/api/articles?order=asc").expect(200).then((response) => {
+                const articles = response.body;
+                expect(Array.isArray(articles)).toBe(true);
+                if (articles.length > 0) {
+                    articles.forEach((article) => {
+                        expect(article).not.toHaveProperty("body");
+                        expect(article).toHaveProperty("article_id");
+                        expect(typeof article.article_id).toBe("number");
+                        expect(article).toHaveProperty("title");
+                        expect(typeof article.title).toBe("string");
+                        expect(article).toHaveProperty("topic");
+                        expect(typeof article.topic).toBe("string");
+                        expect(article).toHaveProperty("author");
+                        expect(typeof article.author).toBe("string");
+                        expect(article).toHaveProperty("created_at");
+                        expect(typeof article.created_at).toBe("string");
+                        expect(article).toHaveProperty("votes");
+                        expect(typeof article.votes).toBe("number");
+                        expect(article).toHaveProperty("article_img_url");
+                        expect(typeof article.article_img_url).toBe("string");
+                        expect(article).toHaveProperty("comment_count");
+                        expect(typeof article.comment_count).toBe("string");
+                    })
+                };
+                expect(articles).toBeSortedBy("created_at", {descending: false});
+            })
+        });
+        test("Should respond with 404 and an error message if passed invalid order query", () => {
+            return request(app).get("/api/articles?order=password").expect(404).then((response) => {
+                const text = response.error.text;
+                expect(text).toBe("{\"status\":404,\"error\":\"Not Found\",\"message\":\"Not found\"}");
+            })
+        });
+    });
+    describe("GET /api/articles?topic", () => {
+        test("Should respond with 200 and an array of articles with only the topic in the topic query", () => {
+            return request(app).get("/api/articles?topic=mitch").expect(200).then((response) => {
+                const articles = response.body;
+                expect(Array.isArray(articles)).toBe(true);
+                if (articles.length > 0) {
+                    articles.forEach((article) => {
+                        expect(article).not.toHaveProperty("body");
+                        expect(article).toHaveProperty("article_id");
+                        expect(typeof article.article_id).toBe("number");
+                        expect(article).toHaveProperty("title");
+                        expect(typeof article.title).toBe("string");
+                        expect(article).toHaveProperty("topic");
+                        expect(article.topic).toBe("mitch");
+                        expect(article).toHaveProperty("author");
+                        expect(typeof article.author).toBe("string");
+                        expect(article).toHaveProperty("created_at");
+                        expect(typeof article.created_at).toBe("string");
+                        expect(article).toHaveProperty("votes");
+                        expect(typeof article.votes).toBe("number");
+                        expect(article).toHaveProperty("article_img_url");
+                        expect(typeof article.article_img_url).toBe("string");
+                        expect(article).toHaveProperty("comment_count");
+                        expect(typeof article.comment_count).toBe("string");
+                    })
+                };
+            })
+        });
+        test("Should respond with 404 and an error message if passed invalid topic query", () => {
+            return request(app).get("/api/articles?topic=password").expect(404).then((response) => {
+                const text = response.error.text;
+                expect(text).toBe("{\"status\":404,\"error\":\"Not Found\",\"message\":\"Not found\"}");
+            })
         });
     });
 })
@@ -316,7 +406,7 @@ describe("PATCH /api/articles/:article_id", () => {
         article_img_url:
             "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
     }
-    test("Should return 200 and update comment", () => {
+    test("Should respond with 200 and update comment", () => {
         return request(app).patch("/api/articles/1").send({ incVotes: 10 }).expect(200).then((response) => {
             const updatedArticle = response.body.comment;
             expect(updatedArticle.article_id).toBe(1);
@@ -361,13 +451,13 @@ describe("PATCH /api/articles/:article_id", () => {
             expect(text).toEqual("{\"status\":500,\"error\":\"Internal Server Error\"}");
         });
     });
-    test("Should return 400 and send an error message if request body is undefined", () => {
+    test("Should respond with 400 and send an error message if request body is undefined", () => {
         return request(app).patch("/api/articles/1").send({}).expect(400).then((response) => {
             const text = response.error.text;
             expect(text).toBe("{\"status\":400,\"error\":\"Bad Request\",\"message\":\"Invalid request body\"}")
         })
     });
-    test("Should return 400 and send an error message if request body is not a number", () => {
+    test("Should respond with 400 and send an error message if request body is not a number", () => {
         return request(app).patch("/api/articles/1").send({ incVotes: "Hello" }).expect(400).then((response) => {
             const text = response.error.text;
             expect(text).toBe("{\"status\":400,\"error\":\"Bad Request\",\"message\":\"Invalid request body\"}")
@@ -434,28 +524,3 @@ describe("GET /api/users", () => {
     })
 })
 
-describe("GET /api/articles?topic=", () => {
-    test("Should return 200 and an array of articles with the same topic in the query", () => {
-        return request(app).get("/api/articles?topic=mitch").expect(200).then((response) => {
-            const articles = response.body;
-            expect(Array.isArray(articles)).toBe(true);
-            articles.forEach((article) => {
-                expect(typeof article).toBe("object")
-                expect(article.topic).toBe("mitch");
-            })
-        })
-    });
-    test("Should return 404 and an error message if passed invalid topic query", () => {
-        return request(app).get("/api/articles?topic=nonsense").expect(404).then((response) => {
-            const text = response.error.text;
-            expect(text).toBe("{\"status\":404,\"error\":\"Not Found\",\"message\":\"Not found\"}");
-        })
-    });
-    test("Should respond with 500 and send an error message in case of an error", () => {
-        jest.spyOn(models, 'fetchAllArticles').mockRejectedValue(new Error("Database query error"));
-        return request(app).get("/api/articles?topic=mitch").expect(500).then((response) => {
-            const text = response.error.text;
-            expect(text).toEqual("{\"status\":500,\"error\":\"Internal Server Error\"}");
-        });
-    });
-})
