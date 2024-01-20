@@ -42,7 +42,9 @@ function getArticlesById(req, res, next) {
 
 function getAllArticles(req, res, next) {
     const topicQuery = req.query.topic;
-    models.fetchAllArticles(topicQuery).then((response) => {
+    const sortQuery = req.query.sort_by || "created_at";
+    const orderQuery = req.query.order || "DESC";
+    models.fetchAllArticles(topicQuery, sortQuery, orderQuery).then((response) => {
         res.status(200).send(response.rows);
     }).catch((error) => {
         next(error);
