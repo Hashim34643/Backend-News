@@ -164,7 +164,7 @@ function fetchDeleteCommentsByCommentId(commentId) {
     WHERE comment_id = $1;`;
     return db.query(sqlQuery, [commentId]).then((response) => {
         if (response.rowCount === 0) {
-            return Promise.reject({ status: 404, error: "Not found" });
+            return Promise.reject({status: 404, error: "Not found"});
         }
         return response
     })
@@ -178,4 +178,16 @@ function fetchAllUsers() {
     });
 }
 
-module.exports = { fetchAllTopics, fetchAllApi, fetchArticlesById, fetchAllArticles, fetchCommentsByArticleId, fetchPostCommentsByArticleId, fetchPatchArticleByArticleId, fetchDeleteCommentsByCommentId, fetchAllUsers };
+function fetchUserByUsername(userName) {
+    const sqlQuery = `
+    SELECT * FROM users
+    WHERE username = $1;`;
+    return db.query(sqlQuery, [userName]).then((response) => {
+        if (response.rows.length === 0) {
+            return Promise.reject({status: 404, error: "Not found"});
+        }
+        return response;
+    })
+}
+
+module.exports = { fetchAllTopics, fetchAllApi, fetchArticlesById, fetchAllArticles, fetchCommentsByArticleId, fetchPostCommentsByArticleId, fetchPatchArticleByArticleId, fetchDeleteCommentsByCommentId, fetchAllUsers, fetchUserByUsername};
