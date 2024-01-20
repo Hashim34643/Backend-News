@@ -102,4 +102,13 @@ function getAllUsers(req, res, next) {
     })
 } 
 
-module.exports = {getAllTopics, getAllApi, getArticlesById, getAllArticles, getCommentsByArticleId, postCommentsByArticleId, patchArticleByArticleId, deleteCommentsByCommentId, getAllUsers};
+function getUserByUsername(req, res, next) {
+    const username = req.params.username;
+    models.fetchUserByUsername(username).then((response) => {
+        res.status(200).send(response.rows[0]);
+    }).catch((error) => {
+        next(error);
+    })
+}
+
+module.exports = {getAllTopics, getAllApi, getArticlesById, getAllArticles, getCommentsByArticleId, postCommentsByArticleId, patchArticleByArticleId, deleteCommentsByCommentId, getAllUsers, getUserByUsername};

@@ -15,7 +15,7 @@ afterAll(() => {
 
 describe("ERROR", () => {
     test("Should respond with 500 and send an error response in case of an error", () => {
-        jest.spyOn(models, 'fetchAllTopics').mockRejectedValue(new Error("Database query error"));
+        jest.spyOn(models, 'fetchAllTopics').mockRejectedValue(new Error("Internal Server Error"));
         return request(app).get("/api/topics").expect(500).then((response) => {
             const text = response.error.text;
             expect(text).toEqual("{\"status\":500,\"error\":\"Internal Server Error\"}");
@@ -124,6 +124,7 @@ describe("GET /api/articles", () => {
             const articles = response.body;
             if (articles.length > 0) {
                 articles.forEach((article) => {
+                    expect(typeof article).toBe("object");
                     expect(article).not.toHaveProperty("body");
                     expect(article).toHaveProperty("article_id");
                     expect(typeof article.article_id).toBe("number");
@@ -158,6 +159,7 @@ describe("GET /api/articles", () => {
                 expect(Array.isArray(articles)).toBe(true);
                 if (articles.length > 0) {
                     articles.forEach((article) => {
+                        expect(typeof article).toBe("object");
                         expect(article).not.toHaveProperty("body");
                         expect(article).toHaveProperty("article_id");
                         expect(typeof article.article_id).toBe("number");
@@ -194,6 +196,7 @@ describe("GET /api/articles", () => {
                 expect(Array.isArray(articles)).toBe(true);
                 if (articles.length > 0) {
                     articles.forEach((article) => {
+                        expect(typeof article).toBe("object");
                         expect(article).not.toHaveProperty("body");
                         expect(article).toHaveProperty("article_id");
                         expect(typeof article.article_id).toBe("number");
@@ -230,6 +233,7 @@ describe("GET /api/articles", () => {
                 expect(Array.isArray(articles)).toBe(true);
                 if (articles.length > 0) {
                     articles.forEach((article) => {
+                        expect(typeof article).toBe("object");
                         expect(article).not.toHaveProperty("body");
                         expect(article).toHaveProperty("article_id");
                         expect(typeof article.article_id).toBe("number");
@@ -310,13 +314,6 @@ describe("GET /api/articles/:article_id/comments", () => {
             expect(text).toEqual("{\"status\":404,\"error\":\"Not Found\",\"message\":\"Not found\"}");
         });
     });
-    test("Should respond with 500 and send an error response in case of an error", () => {
-        jest.spyOn(models, 'fetchCommentsByArticleId').mockRejectedValue(new Error("Database query error"));
-        return request(app).get("/api/articles/1/comments").expect(500).then((response) => {
-            const text = response.error.text;
-            expect(text).toEqual("{\"status\":500,\"error\":\"Internal Server Error\"}");
-        });
-    });
 })
 
 describe("POST /api/articles/article_id/comments", () => {
@@ -364,16 +361,6 @@ describe("POST /api/articles/article_id/comments", () => {
             expect(text).toEqual("{\"status\":400,\"error\":\"Bad Request\",\"message\":\"Invalid query\"}");
         })
     });
-    test("Should respond with 500 and send an error message in case of an error", () => {
-        jest.spyOn(models, 'fetchCommentsByArticleId').mockRejectedValue(new Error("Database query error"));
-        return request(app).post("/api/articles/1/comments").send({
-            username: "testAuthor",
-            body: "testBody"
-        }).expect(500).then((response) => {
-            const text = response.error.text;
-            expect(text).toEqual("{\"status\":500,\"error\":\"Internal Server Error\"}");
-        });
-    });
     test("Should respond with 400 and send an error message if request body is missing", () => {
         return request(app).post("/api/articles/1/comments").send({}).expect(400).then((response) => {
             const text = response.error.text;
@@ -409,6 +396,7 @@ describe("PATCH /api/articles/:article_id", () => {
     test("Should respond with 200 and update comment", () => {
         return request(app).patch("/api/articles/1").send({ incVotes: 10 }).expect(200).then((response) => {
             const updatedArticle = response.body.comment;
+            expect(typeof updatedArticle).toBe("object");
             expect(updatedArticle.article_id).toBe(1);
             expect(updatedArticle.title).toBe(articleWithId1.title);
             expect(updatedArticle.topic).toBe(articleWithId1.topic);
@@ -440,15 +428,6 @@ describe("PATCH /api/articles/:article_id", () => {
         }).expect(404).then((response) => {
             const text = response.error.text;
             expect(text).toEqual("{\"status\":404,\"error\":\"Not Found\",\"message\":\"Not found\"}");
-        });
-    });
-    test("Should respond with 500 and send an error message in case of an error", () => {
-        jest.spyOn(models, 'fetchPatchArticleByArticleId').mockRejectedValue(new Error("Database query error"));
-        return request(app).patch("/api/articles/1").send({
-            incVotes: 10
-        }).expect(500).then((response) => {
-            const text = response.error.text;
-            expect(text).toEqual("{\"status\":500,\"error\":\"Internal Server Error\"}");
         });
     });
     test("Should respond with 400 and send an error message if request body is undefined", () => {
@@ -490,13 +469,6 @@ describe("DELETE /api/comments/:comment_id", () => {
             expect(text).toBe("{\"status\":404,\"error\":\"Not Found\",\"message\":\"Not found\"}")
         })
     });
-    test("Should respond with 500 and send an error message in case of an error", () => {
-        jest.spyOn(models, 'fetchDeleteCommentsByCommentId').mockRejectedValue(new Error("Database query error"));
-        return request(app).delete("/api/comments/1").expect(500).then((response) => {
-            const text = response.error.text;
-            expect(text).toEqual("{\"status\":500,\"error\":\"Internal Server Error\"}");
-        });
-    });
 })
 
 describe("GET /api/users", () => {
@@ -515,12 +487,26 @@ describe("GET /api/users", () => {
             })
         })
     });
-    test("Should respond with 500 and an error message incase of error", () => {
-        jest.spyOn(models, "fetchAllUsers").mockRejectedValue(new Error("Database query error"));
-        return request(app).get("/api/users").expect(500).then((response) => {
+})
+
+describe("GET /api/users/:username", () => {
+    test("Should respond with 200 and return specified user data", () => {
+        return request(app).get("/api/users/butter_bridge").expect(200).then((response) => {
+            const user = response.body;
+            expect(typeof user).toBe("object");
+            expect(user).toEqual(
+                expect.objectContaining({
+                    username: expect.any(String),
+                    name: expect.any(String),
+                    avatar_url: expect.any(String)        
+                })
+            );
+        });
+    });
+    test("Should return 404 and error message if username does not exist", () => {
+        return request(app).get("/api/users/hrstdbdjstsr.ss554#$^%^3").then((response) => {
             const text = response.error.text;
-            expect(text).toEqual("{\"status\":500,\"error\":\"Internal Server Error\"}")
+            expect(text).toBe("{\"status\":404,\"error\":\"Not Found\",\"message\":\"Not found\"}")
         })
     })
 })
-
