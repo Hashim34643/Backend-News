@@ -16,7 +16,7 @@ afterAll(() => {
 describe("GET /api/topics", () => {
     test("Should return status 200 and topics data", () => {
         return request(app).get("/api/topics").expect(200).then((response) => {
-            const topics = response.body.response.rows;
+            const topics = response.body;
             expect(Array.isArray(topics)).toBe(true);
             expect(topics.length).toEqual(topicData.length);
             if (topics.length > 0) {
@@ -131,10 +131,9 @@ describe("GET /api/articles/:article_id", () => {
 describe("GET /api/articles", () => {
     test("Should respond with 200 and return an array of objects containing articles data", () => {
         return request(app).get("/api/articles").expect(200).then((response) => {
-            const articles = response.body.response.rows;
+            const articles = response.body;
             if (articles.length > 0) {
                 articles.forEach((article) => {
-                    expect(typeof article).toBe("object");
                     expect(article).not.toHaveProperty("body");
                     expect(article).toHaveProperty("article_id");
                     expect(typeof article.article_id).toBe("number");
@@ -158,7 +157,7 @@ describe("GET /api/articles", () => {
     });
     test("Should be sorted by date", () => {
         return request(app).get("/api/articles").expect(200).then((response) => {
-            const articles = response.body.response.rows;
+            const articles = response.body;
             expect(articles).toBeSortedBy("created_at", { descending: true });
         })
     });
@@ -174,7 +173,7 @@ describe("GET /api/articles", () => {
 describe("GET /api/articles/:article_id/comments", () => {
     test("Should respond with 200 and an array of comments belonging to the specific article id", () => {
         return request(app).get("/api/articles/1/comments").expect(200).then((response) => {
-            const comments = response.body.response.rows;
+            const comments = response.body.comments;
             if (comments.length > 0) {
                 expect(Array.isArray(comments)).toBe(true);
                 comments.forEach((comment) => {
@@ -248,9 +247,7 @@ describe("POST /api/articles/article_id/comments", () => {
             username: "icellusedkars",
             body: "This is a test comment"
         }).expect(201).then((response) => {
-            //console.log(response)
-            const parsedText = JSON.parse(response.text);
-            const text = parsedText.response.rows[0];
+            const text = response.body.comment;
             expect(typeof text).toBe("object");
             expect(text.body).toBe("This is a test comment");
             expect(text.article_id).toBe(1);
@@ -321,8 +318,7 @@ describe("PATCH /api/articles/:article_id", () => {
     }
     test("Should return 200 and update comment", () => {
         return request(app).patch("/api/articles/1").send({ incVotes: 10 }).expect(200).then((response) => {
-            const parsedArticle = JSON.parse(response.text);
-            const updatedArticle = parsedArticle.response.rows[0];
+            const updatedArticle = response.body.comment;
             expect(updatedArticle.article_id).toBe(1);
             expect(updatedArticle.title).toBe(articleWithId1.title);
             expect(updatedArticle.topic).toBe(articleWithId1.topic);
@@ -441,7 +437,7 @@ describe("GET /api/users", () => {
 describe("GET /api/articles?topic=", () => {
     test("Should return 200 and an array of articles with the same topic in the query", () => {
         return request(app).get("/api/articles?topic=mitch").expect(200).then((response) => {
-            const articles = response.body.response.rows;
+            const articles = response.body;
             expect(Array.isArray(articles)).toBe(true);
             articles.forEach((article) => {
                 expect(typeof article).toBe("object")

@@ -3,7 +3,7 @@ const fs = require("fs/promises");
 
 function getAllTopics(req, res, next) {
     models.fetchAllTopics().then((response) => {
-        res.status(200).send({response});
+        res.status(200).send(response.rows);
     }).catch((error) => {
         next(error);
     })
@@ -43,7 +43,7 @@ function getArticlesById(req, res, next) {
 function getAllArticles(req, res, next) {
     const topicQuery = req.query.topic;
     models.fetchAllArticles(topicQuery).then((response) => {
-        res.status(200).send({response});
+        res.status(200).send(response.rows);
     }).catch((error) => {
         next(error);
     })
@@ -52,7 +52,8 @@ function getAllArticles(req, res, next) {
 function getCommentsByArticleId(req, res, next) {
     const articleId = req.params.article_id;
     models.fetchCommentsByArticleId(articleId).then((response) => {
-        res.status(200).send({response});
+        const comments = response.rows;
+        res.status(200).send({comments});
     }).catch((error) => {
         next(error);
     })
@@ -63,7 +64,8 @@ function postCommentsByArticleId(req, res, next) {
     const {username, body} = req.body;
 
     models.fetchPostCommentsByArticleId(articleId, username, body).then((response) => {
-        res.status(201).send({response});
+        const comment = response.rows[0];
+        res.status(201).send({comment});
     }).catch((error) => {
         next(error);
     }) 
@@ -73,7 +75,8 @@ function patchArticleByArticleId(req, res, next) {
     const articleId = req.params.article_id;
     const {incVotes} = req.body;
     models.fetchPatchArticleByArticleId(articleId, incVotes).then((response) => {
-        res.status(200).send({response});
+        const comment = response.rows[0];
+        res.status(200).send({comment});
     }).catch((error) => {
         next(error)
     })
