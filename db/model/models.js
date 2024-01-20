@@ -190,4 +190,25 @@ function fetchUserByUsername(userName) {
     })
 }
 
-module.exports = { fetchAllTopics, fetchAllApi, fetchArticlesById, fetchAllArticles, fetchCommentsByArticleId, fetchPostCommentsByArticleId, fetchPatchArticleByArticleId, fetchDeleteCommentsByCommentId, fetchAllUsers, fetchUserByUsername};
+function fetchPatchCommentByCommentId(commentId, incVotes) {
+    if (commentId % 1 !== 0 || commentId <= 0) {
+        return Promise.reject({status: 400, error: "Invalid query"});
+    };
+    if (typeof incVotes !== "number" || !incVotes) {
+        return Promise.reject({status: 400, error: "Invalid request body"});
+    };
+    const sqlQuery = `
+    UPDATE comments
+    SET votes = votes + $2
+    WHERE comment_id = $1
+    RETURNING
+    *`;
+    return db.query(sqlQuery, [commentId, incVotes]).then((response) => {
+        if (response.rows.length === 0) {
+            return Promise.reject({status: 404, error: "Not found"});
+        }
+        return response;
+    })
+}
+
+module.exports = { fetchAllTopics, fetchAllApi, fetchArticlesById, fetchAllArticles, fetchCommentsByArticleId, fetchPostCommentsByArticleId, fetchPatchArticleByArticleId, fetchDeleteCommentsByCommentId, fetchAllUsers, fetchUserByUsername, fetchPatchCommentByCommentId};

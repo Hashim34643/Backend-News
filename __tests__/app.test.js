@@ -317,7 +317,6 @@ describe("GET /api/articles/:article_id/comments", () => {
 })
 
 describe("POST /api/articles/article_id/comments", () => {
-
     const commentExample = {
         rows: [
             {
@@ -379,10 +378,6 @@ describe("POST /api/articles/article_id/comments", () => {
 })
 
 describe("PATCH /api/articles/:article_id", () => {
-
-    afterEach(() => {
-        jest.restoreAllMocks();
-    });
     const articleWithId1 = {
         title: "Living in the shadow of a great man",
         topic: "mitch",
@@ -503,10 +498,72 @@ describe("GET /api/users/:username", () => {
             );
         });
     });
-    test("Should return 404 and error message if username does not exist", () => {
+    test("Should respond with 404 and error message if username does not exist", () => {
         return request(app).get("/api/users/hrstdbdjstsr.ss554#$^%^3").then((response) => {
             const text = response.error.text;
             expect(text).toBe("{\"status\":404,\"error\":\"Not Found\",\"message\":\"Not found\"}")
         })
     })
 })
+
+describe("PATCH /api/comments/:comment_id", () => {
+    const commentWithId2 = {
+        body: "The beautiful thing about treasure is that it exists. Got to find out what kind of sheets these are; not cotton, not rayon, silky.",
+        votes: 14,
+        author: "butter_bridge",
+        article_id: 1,
+        created_at: 1604113380000,
+    };
+    test("Should respond with 200 and send the updated comment", () => {
+        return request(app).patch("/api/comments/2").send({incVotes: 10}).expect(200).then((response) => {
+            const comment = response.body.comment;
+            expect(typeof comment).toBe("object");
+            expect(comment).toEqual(
+                expect.objectContaining({
+                comment_id: expect.any(Number),
+                body: expect.any(String),
+                article_id: expect.any(Number),
+                author: expect.any(String),
+                votes: expect.any(Number),
+                created_at: expect.any(String) 
+                })
+            )
+        })
+    });
+    test("Should respond with 400 and send an error message if invalid id input", () => {
+        return request(app).patch("/api/comments/0").send({
+            incVotes: 10
+        }).expect(400).then((response) => {
+            const text = response.error.text;
+            expect(text).toEqual("{\"status\":400,\"error\":\"Bad Request\",\"message\":\"Invalid query\"}");
+        })
+    });
+    test("Should respond with 400 and send an error message if invalid id input", () => {
+        return request(app).patch("/api/comments/5.7").send({
+            incVotes: 10
+        }).expect(400).then((response) => {
+            const text = response.error.text;
+            expect(text).toEqual("{\"status\":400,\"error\":\"Bad Request\",\"message\":\"Invalid query\"}");
+        })
+    });
+    test("Should respond with 404 and send an error message if valid id but does not exist in database", () => {
+        return request(app).patch("/api/comments/123").send({
+            incVotes: 10
+        }).expect(404).then((response) => {
+            const text = response.error.text;
+            expect(text).toEqual("{\"status\":404,\"error\":\"Not Found\",\"message\":\"Not found\"}");
+        });
+    });
+    test("Should respond with 400 and send an error message if request body is undefined", () => {
+        return request(app).patch("/api/comments/1").send({}).expect(400).then((response) => {
+            const text = response.error.text;
+            expect(text).toBe("{\"status\":400,\"error\":\"Bad Request\",\"message\":\"Invalid request body\"}")
+        })
+    });
+    test("Should respond with 400 and send an error message if request body is not a number", () => {
+        return request(app).patch("/api/comments/1").send({ incVotes: "Hello" }).expect(400).then((response) => {
+            const text = response.error.text;
+            expect(text).toBe("{\"status\":400,\"error\":\"Bad Request\",\"message\":\"Invalid request body\"}")
+        })
+    });
+});
