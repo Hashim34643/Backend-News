@@ -2,7 +2,7 @@ const models = require("../model/models");
 const fs = require("fs/promises");
 
 function getAllTopics(req, res, next) {
-    models.fetchAllTopics().then((response) => {
+    models.fetchGetAllTopics().then((response) => {
         res.status(200).send(response.rows);
     }).catch((error) => {
         next(error);
@@ -16,7 +16,7 @@ function updateEndpointsDynamically(data) {
 function getAllApi(req, res, next) {
     fs.readFile("/home/hashim/northcoders/backend/be-nc-news/endpoints.json", "utf-8").then((response) => {
         const endpoints = JSON.parse(response);
-        return models.fetchAllApi().then((response) => {
+        return models.fetchGetAllApi().then((response) => {
             const newEndpoints = {
                 ...endpoints,
                 ...response,
@@ -32,7 +32,7 @@ function getAllApi(req, res, next) {
 
 function getArticlesById(req, res, next) {
     const articleId = req.params.article_id;
-    models.fetchArticlesById(articleId).then((response) => {
+    models.fetchGetArticlesById(articleId).then((response) => {
         const article = response.rows[0];
         res.status(200).send(({article}));
     }).catch((error) => {
@@ -44,7 +44,7 @@ function getAllArticles(req, res, next) {
     const topicQuery = req.query.topic;
     const sortQuery = req.query.sort_by || "created_at";
     const orderQuery = req.query.order || "DESC";
-    models.fetchAllArticles(topicQuery, sortQuery, orderQuery).then((response) => {
+    models.fetchGetAllArticles(topicQuery, sortQuery, orderQuery).then((response) => {
         res.status(200).send(response.rows);
     }).catch((error) => {
         next(error);
@@ -53,7 +53,7 @@ function getAllArticles(req, res, next) {
 
 function getCommentsByArticleId(req, res, next) {
     const articleId = req.params.article_id;
-    models.fetchCommentsByArticleId(articleId).then((response) => {
+    models.fetchGetCommentsByArticleId(articleId).then((response) => {
         const comments = response.rows;
         res.status(200).send({comments});
     }).catch((error) => {
@@ -95,7 +95,7 @@ function deleteCommentsByCommentId(req, res, next) {
 }
 
 function getAllUsers(req, res, next) {
-    models.fetchAllUsers().then((response) => {
+    models.fetchGetAllUsers().then((response) => {
         res.status(200).send(response.rows);
     }).catch((error) => {
         next(error);
@@ -104,7 +104,7 @@ function getAllUsers(req, res, next) {
 
 function getUserByUsername(req, res, next) {
     const username = req.params.username;
-    models.fetchUserByUsername(username).then((response) => {
+    models.fetchGetUserByUsername(username).then((response) => {
         res.status(200).send(response.rows[0]);
     }).catch((error) => {
         next(error);
