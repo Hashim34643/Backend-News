@@ -317,17 +317,6 @@ describe("GET /api/articles/:article_id/comments", () => {
 })
 
 describe("POST /api/articles/article_id/comments", () => {
-    const commentExample = {
-        rows: [
-            {
-                body: "This is a test comment",
-                article_id: 1,
-                author: "Test",
-                votes: 0,
-                created_at: Date.now()
-            }
-        ]
-    };
     test("Should respond with 201 and add new comment", () => {
         return request(app).post("/api/articles/1/comments").send({
             username: "icellusedkars",
@@ -567,3 +556,46 @@ describe("PATCH /api/comments/:comment_id", () => {
         })
     });
 });
+
+describe("POST /api/articles", () => {
+    test("Should respond with 201 and send the newly created article data", () => {
+        return request(app).post("/api/articles").send({
+            title: "Post /api/article test title",
+            topic: "mitch",
+            author: "butter_bridge",
+            body: "Test",
+            article_img_url: "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700" 
+        }).expect(201).then((response) => {
+            const article = response.body.article;
+            expect(typeof article).toBe("object");
+            expect(article).toEqual(
+                expect.objectContaining({
+                    article_id: expect.any(Number),
+                    author: expect.any(String),
+                    title: expect.any(String),
+                    body: expect.any(String),
+                    topic: expect.any(String),
+                    article_img_url: expect.any(String),
+                    created_at: expect.any(String),
+                    votes: expect.any(Number),
+                    comment_count: expect.any(String)
+                })
+            );
+        });
+    });
+    test("Should respond with 400 and send an error message if request body is missing", () => {
+        return request(app).post("/api/articles").send({}).expect(400).then((response) => {
+            const text = response.error.text;
+            expect(text).toEqual("{\"status\":400,\"error\":\"Bad Request\",\"message\":\"Invalid request body\"}");
+        });
+    });
+    test("Should respond with 400 and send an error message if request body doesn't match requirements", () => {
+        return request(app).post("/api/articles").send({
+            author: 33,
+            body: "testBody"
+        }).expect(400).then((response) => {
+            const text = response.error.text;
+            expect(text).toEqual("{\"status\":400,\"error\":\"Bad Request\",\"message\":\"Invalid request body\"}");
+        });
+    });
+})

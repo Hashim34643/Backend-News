@@ -211,4 +211,43 @@ function fetchPatchCommentByCommentId(commentId, incVotes) {
     })
 }
 
-module.exports = { fetchAllTopics, fetchAllApi, fetchArticlesById, fetchAllArticles, fetchCommentsByArticleId, fetchPostCommentsByArticleId, fetchPatchArticleByArticleId, fetchDeleteCommentsByCommentId, fetchAllUsers, fetchUserByUsername, fetchPatchCommentByCommentId};
+function fetchPostArticle(newArticle) {
+    const {author, title, body, topic, article_img_url} = newArticle;
+    if (typeof author !== "string" || !author) {
+        return Promise.reject({status: 400, error: "Invalid request body"})
+    };
+    if (typeof title !== "string" || !title) {
+        return Promise.reject({status: 400, error: "Invalid request body"})
+    };
+    if (typeof body !== "string" || !body) {
+        return Promise.reject({status: 400, error: "Invalid request body"})
+    };
+    if (typeof topic !== "string" || !topic) {
+        return Promise.reject({status: 400, error: "Invalid request body"})
+    };
+    if (typeof article_img_url !== "string" || !article_img_url) {
+        return Promise.reject({status: 400, error: "Invalid request body"})
+    };
+    const sqlQuery = `
+    INSERT INTO articles (
+        author,
+        title,
+        body,
+        topic,
+        article_img_url,
+        created_at,
+        votes
+    )
+    VALUES ($1, $2, $3, $4, $5, CURRENT_TIMESTAMP, 0)
+    RETURNING article_id, author, title, body, topic, article_img_url, created_at, votes,
+        (SELECT COUNT(*) FROM comments WHERE article_id = articles.article_id) AS comment_count;`;
+
+    return db.query(sqlQuery, [author, title, body, topic, article_img_url]).then((response) => {
+        if (response.rows.length === 0) {
+            return Promise.reject({status: 404, error: "Not found"});
+        }
+        return response;
+    })
+}
+
+module.exports = { fetchAllTopics, fetchAllApi, fetchArticlesById, fetchAllArticles, fetchCommentsByArticleId, fetchPostCommentsByArticleId, fetchPatchArticleByArticleId, fetchDeleteCommentsByCommentId, fetchAllUsers, fetchUserByUsername, fetchPatchCommentByCommentId, fetchPostArticle};
