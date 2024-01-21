@@ -25,6 +25,8 @@ app.get("/api/users/:username", controllers.getUserByUsername);
 
 app.post("/api/articles/:article_id/comments", controllers.postCommentsByArticleId);
 
+app.post("/api/articles", controllers.postArticle);
+
 app.patch("/api/articles/:article_id", controllers.patchArticleByArticleId);
 
 app.patch("/api/comments/:comment_id", controllers.patchCommentByCommentId);

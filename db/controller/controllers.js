@@ -122,4 +122,21 @@ function patchCommentByCommentId(req, res, next) {
     })
 }
 
-module.exports = {getAllTopics, getAllApi, getArticlesById, getAllArticles, getCommentsByArticleId, postCommentsByArticleId, patchArticleByArticleId, deleteCommentsByCommentId, getAllUsers, getUserByUsername, patchCommentByCommentId};
+function postArticle(req, res, next) {
+    const {author, title, body, topic, article_img_url} = req.body;
+    const newArticle = {
+        author,
+        title,
+        body,
+        topic,
+        article_img_url
+    };
+    models.fetchPostArticle(newArticle).then((response) => {
+        const article = response.rows[0];
+        res.status(201).send({article});
+    }).catch((error) => {
+        next(error);
+    })
+}
+
+module.exports = {getAllTopics, getAllApi, getArticlesById, getAllArticles, getCommentsByArticleId, postCommentsByArticleId, patchArticleByArticleId, deleteCommentsByCommentId, getAllUsers, getUserByUsername, patchCommentByCommentId, postArticle};
