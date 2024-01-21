@@ -1,6 +1,6 @@
 const request = require("supertest");
 const db = require("../db/connection");
-const { articleData, commentData, topicData, userData } = require("/home/hashim/northcoders/backend/be-nc-news/db/data/test-data/index.js");
+const { articleData, commentData, topicData, userData } = require("../db/data/test-data");
 const app = require("../db/app");
 const seed = require("../db/seeds/seed");
 const models = require("../db/model/models");
