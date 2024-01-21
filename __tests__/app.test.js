@@ -15,7 +15,7 @@ afterAll(() => {
 
 describe("ERROR", () => {
     test("Should respond with 500 and send an error response in case of an error", () => {
-        jest.spyOn(models, 'fetchAllTopics').mockRejectedValue(new Error("Internal Server Error"));
+        jest.spyOn(models, 'fetchGetAllTopics').mockRejectedValue(new Error("Internal Server Error"));
         return request(app).get("/api/topics").expect(500).then((response) => {
             const text = response.error.text;
             expect(text).toEqual("{\"status\":500,\"error\":\"Internal Server Error\"}");

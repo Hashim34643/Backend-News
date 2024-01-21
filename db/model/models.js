@@ -1,7 +1,7 @@
 const db = require("../connection");
 const fs = require("fs/promises");
 
-function fetchAllTopics() {
+function fetchGetAllTopics() {
     const sqlQuery = `
     SELECT * FROM topics;`;
     return db.query(sqlQuery).then((response) => {
@@ -12,14 +12,14 @@ function fetchAllTopics() {
     })
 }
 
-function fetchAllApi() {
+function fetchGetAllApi() {
     const endpointsData = fs.readFile("/home/hashim/northcoders/backend/be-nc-news/endpoints.json", "utf-8").then((response) => {
         return JSON.parse(response);
     })
     return endpointsData;
 }
 
-function fetchArticlesById(articleId) {
+function fetchGetArticlesById(articleId) {
     if (articleId % 1 !== 0 || articleId <= 0) {
         return Promise.reject({ status: 400, error: "Invalid query" });
     }
@@ -48,7 +48,7 @@ function fetchArticlesById(articleId) {
     });
 }
 
-function fetchAllArticles(topicQuery, sortQuery, orderQuery) {
+function fetchGetAllArticles(topicQuery, sortQuery, orderQuery) {
     const safeSortQueryList = ["article-id", "title", "topic", "author", "created_at", "votes", "comment_count"];
     if (!safeSortQueryList.includes(sortQuery)) {
         return Promise.reject({status: 404, error: "Not found"});
@@ -90,7 +90,7 @@ function fetchAllArticles(topicQuery, sortQuery, orderQuery) {
     });
 }
 
-function fetchCommentsByArticleId(articleId) {
+function fetchGetCommentsByArticleId(articleId) {
     if (articleId % 1 !== 0 || articleId <= 0) {
         return Promise.reject({ status: 400, error: "Invalid query" });
     }
@@ -170,7 +170,7 @@ function fetchDeleteCommentsByCommentId(commentId) {
     })
 }
 
-function fetchAllUsers() {
+function fetchGetAllUsers() {
     const sqlQuery = `
     SELECT * FROM users;`;
     return db.query(sqlQuery).then((response) => {
@@ -178,7 +178,7 @@ function fetchAllUsers() {
     });
 }
 
-function fetchUserByUsername(userName) {
+function fetchGetUserByUsername(userName) {
     const sqlQuery = `
     SELECT * FROM users
     WHERE username = $1;`;
@@ -250,4 +250,4 @@ function fetchPostArticle(newArticle) {
     })
 }
 
-module.exports = { fetchAllTopics, fetchAllApi, fetchArticlesById, fetchAllArticles, fetchCommentsByArticleId, fetchPostCommentsByArticleId, fetchPatchArticleByArticleId, fetchDeleteCommentsByCommentId, fetchAllUsers, fetchUserByUsername, fetchPatchCommentByCommentId, fetchPostArticle};
+module.exports = { fetchGetAllTopics, fetchGetAllApi, fetchGetArticlesById, fetchGetAllArticles, fetchGetCommentsByArticleId, fetchPostCommentsByArticleId, fetchPatchArticleByArticleId, fetchDeleteCommentsByCommentId, fetchGetAllUsers, fetchGetUserByUsername, fetchPatchCommentByCommentId, fetchPostArticle};
