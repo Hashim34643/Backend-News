@@ -51,7 +51,6 @@ function getAllArticles(req, res, next) {
         const totalArticles = response.totalCount;
         res.status(200).send({articles, total_count: totalArticles});
     }).catch((error) => {
-        console.log(error)
         next(error);
     })
 }

@@ -47,7 +47,6 @@ describe("GET /api", () => {
     test("Should respond with status 200 and endpoints.json", () => {
         return request(app).get("/api").expect(200).then((response) => {
             const endpoints = response.body.newEndpoints;
-            console.log(endpoints)
             for (const obj in endpoints) {
                 const value = endpoints[obj];
                 expect(typeof obj).toBe("string");

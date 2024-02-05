@@ -10,14 +10,14 @@ app.use(express.json());
 app.use((req, res, next) => {
     next();
 });
+app.get("/api", controllers.getAllApi);
 
 app.get("/api/topics", controllers.getAllTopics);
 
-app.get("/api", controllers.getAllApi);
+app.get("/api/articles", controllers.getAllArticles);
 
 app.get("/api/articles/:article_id", controllers.getArticlesById);
 
-app.get("/api/articles", controllers.getAllArticles);
 
 app.get("/api/articles/:article_id/comments", controllers.getCommentsByArticleId);
 
