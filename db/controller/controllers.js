@@ -48,8 +48,7 @@ function getAllArticles(req, res, next) {
     const pageQuery = req.query.p || 1;
     models.fetchGetAllArticles(topicQuery, sortQuery, orderQuery, limitQuery, pageQuery).then((response) => {
         const articles = response.rows;
-        const totalArticles = response.totalCount;
-        res.status(200).send({articles, total_count: totalArticles});
+        res.status(200).send({articles});
     }).catch((error) => {
         next(error);
     })
