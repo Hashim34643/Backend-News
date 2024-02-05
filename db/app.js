@@ -1,8 +1,10 @@
 const express = require("express");
+const cors = require('cors');
 const db = require("./connection");
 const controllers = require("./controller/controllers");
 
 const app = express();
+app.use(cors());
 app.use(express.json());
 
 app.use((req, res, next) => {

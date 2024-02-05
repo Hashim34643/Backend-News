@@ -47,6 +47,7 @@ describe("GET /api", () => {
     test("Should respond with status 200 and endpoints.json", () => {
         return request(app).get("/api").expect(200).then((response) => {
             const endpoints = response.body.newEndpoints;
+            console.log(endpoints)
             for (const obj in endpoints) {
                 const value = endpoints[obj];
                 expect(typeof obj).toBe("string");
@@ -121,7 +122,7 @@ describe("GET /api/articles/:article_id", () => {
 describe("GET /api/articles", () => {
     test("Should respond with 200 and return an array of articles", () => {
         return request(app).get("/api/articles").expect(200).then((response) => {
-            const articles = response.body;
+            const articles = response.body.articles;
             if (articles.length > 0) {
                 articles.forEach((article) => {
                     expect(typeof article).toBe("object");
@@ -148,14 +149,14 @@ describe("GET /api/articles", () => {
     });
     test("Should be sorted by date", () => {
         return request(app).get("/api/articles").expect(200).then((response) => {
-            const articles = response.body;
+            const articles = response.body.articles;
             expect(articles).toBeSortedBy("created_at", { descending: true });
         })
     });
     describe("Get /api/articles?sort_by", () => {
         test("Should respond with 200 and an array of articles sorted by sort_by query", () => {
             return request(app).get("/api/articles?sort_by=title").expect(200).then((response) => {
-                const articles = response.body;
+                const articles = response.body.articles;
                 expect(Array.isArray(articles)).toBe(true);
                 if (articles.length > 0) {
                     articles.forEach((article) => {
@@ -192,7 +193,7 @@ describe("GET /api/articles", () => {
     describe("Get /api/articles?order", () => {
         test("Should respond with 200 and an array of articles ordered by order query", () => {
             return request(app).get("/api/articles?order=asc").expect(200).then((response) => {
-                const articles = response.body;
+                const articles = response.body.articles;
                 expect(Array.isArray(articles)).toBe(true);
                 if (articles.length > 0) {
                     articles.forEach((article) => {
@@ -229,7 +230,7 @@ describe("GET /api/articles", () => {
     describe("GET /api/articles?topic", () => {
         test("Should respond with 200 and an array of articles with only the topic in the topic query", () => {
             return request(app).get("/api/articles?topic=mitch").expect(200).then((response) => {
-                const articles = response.body;
+                const articles = response.body.articles;
                 expect(Array.isArray(articles)).toBe(true);
                 if (articles.length > 0) {
                     articles.forEach((article) => {
