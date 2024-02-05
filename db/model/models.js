@@ -48,7 +48,7 @@ function fetchGetArticlesById(articleId) {
     });
 }
 
-function fetchGetAllArticles(topicQuery, sortQuery, orderQuery) {
+function fetchGetAllArticles(topicQuery, sortQuery, orderQuery, limitQuery, pageQuery) {
     const safeSortQueryList = ["article-id", "title", "topic", "author", "created_at", "votes", "comment_count"];
     if (!safeSortQueryList.includes(sortQuery)) {
         return Promise.reject({status: 404, error: "Not found"});
@@ -60,6 +60,7 @@ function fetchGetAllArticles(topicQuery, sortQuery, orderQuery) {
         return Promise.reject({status: 404, error: "Not found"});
     }
     const safeOrderQuery = `${orderQueryUC}`;
+    const offset = (pageQuery - 1) * limitQuery;
     const sqlQuery = `
     SELECT
     articles.article_id,
@@ -75,13 +76,16 @@ function fetchGetAllArticles(topicQuery, sortQuery, orderQuery) {
     LEFT JOIN comments ON articles.article_id = comments.article_id
     ${topicQuery ? 'WHERE articles.topic = $1' : ''}
     GROUP BY articles.article_id
-    ORDER BY ${safeSortQuery} ${safeOrderQuery};
+    ORDER BY ${safeSortQuery} ${safeOrderQuery}
+    LIMIT $2
+    OFFSET $3;
     `;
-
     const values = [];
     if (topicQuery) {
         values.push(topicQuery);
     }
+    values.push(limitQuery, offset)
+    console.log(values)
     return db.query(sqlQuery, values).then((response) => {
         if (response.rows.length === 0 && topicQuery) {
             return Promise.reject({ status: 404, error: "Not found" });
