@@ -80,11 +80,13 @@ function fetchGetAllArticles(topicQuery, sortQuery, orderQuery, limitQuery, page
     LIMIT $2
     OFFSET $3;
     `;
+
     const values = [];
     if (topicQuery) {
         values.push(topicQuery);
     }
     values.push(limitQuery, offset)
+    console.log(values)
     return db.query(sqlQuery, values).then((response) => {
         if (response.rows.length === 0 && topicQuery) {
             return Promise.reject({ status: 404, error: "Not found" });

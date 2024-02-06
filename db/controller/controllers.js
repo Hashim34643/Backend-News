@@ -41,7 +41,7 @@ function getArticlesById(req, res, next) {
 }
 
 function getAllArticles(req, res, next) {
-    const topicQuery = req.query.topic || "cooking";
+    const topicQuery = req.query.topic || "coding";
     const sortQuery = req.query.sort_by || "created_at";
     const orderQuery = req.query.order || "DESC";
     const limitQuery = req.query.limit || 10;
@@ -54,7 +54,6 @@ function getAllArticles(req, res, next) {
         next(error);
     })
 }
-
 function getCommentsByArticleId(req, res, next) {
     const articleId = req.params.article_id;
     models.fetchGetCommentsByArticleId(articleId).then((response) => {
