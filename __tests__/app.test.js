@@ -120,7 +120,7 @@ describe("GET /api/articles/:article_id", () => {
 
 describe("GET /api/articles", () => {
     test("Should respond with 200 and return an array of articles", () => {
-        return request(app).get("/api/articles").expect(200).then((response) => {
+        return request(app).get("/api/articles?topic=mitch").expect(200).then((response) => {
             const articles = response.body.articles;
             if (articles.length > 0) {
                 articles.forEach((article) => {
@@ -147,14 +147,14 @@ describe("GET /api/articles", () => {
         })
     });
     test("Should be sorted by date", () => {
-        return request(app).get("/api/articles").expect(200).then((response) => {
+        return request(app).get("/api/articles?topic=mitch").expect(200).then((response) => {
             const articles = response.body.articles;
             expect(articles).toBeSortedBy("created_at", { descending: true });
         })
     });
     describe("Get /api/articles?sort_by", () => {
         test("Should respond with 200 and an array of articles sorted by sort_by query", () => {
-            return request(app).get("/api/articles?sort_by=title").expect(200).then((response) => {
+            return request(app).get("/api/articles?sort_by=title&topic=mitch").expect(200).then((response) => {
                 const articles = response.body.articles;
                 expect(Array.isArray(articles)).toBe(true);
                 if (articles.length > 0) {
@@ -191,7 +191,7 @@ describe("GET /api/articles", () => {
     });
     describe("Get /api/articles?order", () => {
         test("Should respond with 200 and an array of articles ordered by order query", () => {
-            return request(app).get("/api/articles?order=asc").expect(200).then((response) => {
+            return request(app).get("/api/articles?order=asc&topic=mitch").expect(200).then((response) => {
                 const articles = response.body.articles;
                 expect(Array.isArray(articles)).toBe(true);
                 if (articles.length > 0) {

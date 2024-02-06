@@ -41,14 +41,15 @@ function getArticlesById(req, res, next) {
 }
 
 function getAllArticles(req, res, next) {
-    const topicQuery = req.query.topic || "mitch";
+    const topicQuery = req.query.topic || "cooking";
     const sortQuery = req.query.sort_by || "created_at";
     const orderQuery = req.query.order || "DESC";
     const limitQuery = req.query.limit || 10;
     const pageQuery = req.query.p || 1;
     models.fetchGetAllArticles(topicQuery, sortQuery, orderQuery, limitQuery, pageQuery).then((response) => {
         const articles = response.rows;
-        res.status(200).send({articles});
+        const totalArticles = response.totalCount;
+        res.status(200).send({articles, total_count: totalArticles});
     }).catch((error) => {
         next(error);
     })
