@@ -61,7 +61,7 @@ function fetchGetAllArticles(topicQuery, sortQuery, orderQuery, limitQuery, page
     }
     const safeOrderQuery = `${orderQueryUC}`;
     const offset = (pageQuery - 1) * limitQuery;
-    const sqlQuery = `
+    let sqlQuery = `
     SELECT
     articles.article_id,
     articles.title,
@@ -73,24 +73,26 @@ function fetchGetAllArticles(topicQuery, sortQuery, orderQuery, limitQuery, page
     COUNT(comments.comment_id) AS comment_count
     FROM
     articles
-    LEFT JOIN comments ON articles.article_id = comments.article_id
-    ${topicQuery ? 'WHERE articles.topic = $1' : ''}
-    GROUP BY articles.article_id
-    ORDER BY ${safeSortQuery} ${safeOrderQuery}
-    LIMIT $2
-    OFFSET $3;
-    `;
-
+    LEFT JOIN comments ON articles.article_id = comments.article_id`;
     const values = [];
+
     if (topicQuery) {
+        sqlQuery += ' WHERE articles.topic = $1';
         values.push(topicQuery);
     }
-    values.push(limitQuery, offset)
-    console.log(values)
+
+    sqlQuery += `
+    GROUP BY articles.article_id
+    ORDER BY ${safeSortQuery} ${safeOrderQuery}
+    LIMIT $${values.length + 1}
+    OFFSET $${values.length + 2};`;
+
+    values.push(limitQuery, offset);
+
     return db.query(sqlQuery, values).then((response) => {
         if (response.rows.length === 0 && topicQuery) {
             return Promise.reject({ status: 404, error: "Not found" });
-        };
+        }
         return response;
     });
 }
